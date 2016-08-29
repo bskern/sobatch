@@ -9,3 +9,5 @@ stackoverflow {
   uri = "/2.2/questions/"
 }
 ```
+
+## Also, code assumes you have locally available SMTP server
