@@ -5,6 +5,10 @@ import javax.mail._
 import javax.mail.internet._
 import java.util.Date
 import java.util.Properties
+
+import com.typesafe.config.Config
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.collection.JavaConversions._
 
 
@@ -12,17 +16,17 @@ trait EmailService {
   def sendEmail(question:SOQuestion):Unit
 }
 
-class DefaultEmailService() extends EmailService {
+class DefaultEmailService(config: Config) extends EmailService with LazyLogging {
   override def sendEmail(question: SOQuestion): Unit = {
-    println(s"going to send email for question $question")
-    new MailAgent(to="bskern@gmail.com",
+    logger.info(s"going to send email for question $question")
+    new MailAgent(to=config.getString("emailNotifications.to"),
       cc="",
       bcc="",
-      from="barry@bkern.space",
+      from="emailNotifications.from",
       subject=s"new scala so: ${question.title}",
       content=s"${question.title} link here ${question.link}",
-      smtpHost = "localhost").sendMessage
-    println(s"sent email..")
+      smtpHost = config.getString("emailNotifications.smtpHost")).sendMessage
+      logger.info(s"sent email..")
   }
 }
 

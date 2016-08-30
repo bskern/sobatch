@@ -12,7 +12,10 @@ libraryDependencies ++=Seq(
   "com.typesafe" % "config" % "1.3.0",
   "org.scalactic" % "scalactic_2.11" % "3.0.0",
   "javax.mail" % "mail" % "1.4.1",
-  "javax.activation" % "activation" % "1.1.1"
+  "javax.activation" % "activation" % "1.1.1",
+  "com.typesafe.akka" % "akka-slf4j_2.11" % "2.4.9",
+  "ch.qos.logback" % "logback-classic" % "1.1.7",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
 )
 
 enablePlugins(JavaServerAppPackaging)

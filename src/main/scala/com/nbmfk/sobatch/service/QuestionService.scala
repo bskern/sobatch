@@ -15,6 +15,7 @@ import akka.util.ByteString
 import com.nbmfk.sobatch.model.{QuestionList, RawQuestion, SOQuestion}
 import com.typesafe.config.Config
 import akka.http.scaladsl.model.StatusCodes._
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,16 +30,17 @@ trait QuestionService {
 
 class DefaultQuestionService(config: Config)(implicit ec:ExecutionContext,system:ActorSystem,mat:Materializer) extends QuestionService with
   DefaultJsonProtocol
-   with SprayJsonSupport {
+   with SprayJsonSupport with LazyLogging {
 
   implicit val SOQuestionFormat = jsonFormat5(SOQuestion)
   implicit val RawQuestionFormat = jsonFormat5(RawQuestion)
   implicit val QuestionListFormat = jsonFormat1(QuestionList)
 
   override def getQuestions(): Future[Seq[SOQuestion] Or String]= {
+     logger.info("fetching questions")
       fetchData().flatMap { response =>
         response.status match {
-          case OK => parseTransformJSON(response).map(Good(_))
+          case OK => logger.info("got 200 OK response from SO");parseTransformJSON(response).map(Good(_))
           case _ => Unmarshal(response.entity).to[String].flatMap { entity =>
             val error = s"something went wrong status code ${response.status} and entity $entity"
             Future.successful(Bad(error))
@@ -49,7 +51,7 @@ class DefaultQuestionService(config: Config)(implicit ec:ExecutionContext,system
 
 
 lazy val soApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
-  Http().outgoingConnectionHttps("api.stackexchange.com")
+  Http().outgoingConnectionHttps(config.getString("stackoverflow.apiAddress"))
 
 
   def parseTransformJSON(resp: HttpResponse):Future[Seq[SOQuestion]] = {
@@ -83,7 +85,7 @@ lazy val soApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
     HttpRequest(uri = Uri(config.getString("stackoverflow.uri")).withQuery(Query(buildParams())))
   }
 
-  //todo stop reloading key all the time pass donw?
+
   private def buildParams():Map[String,String] = {
     Map(
       "key" -> config.getString("stackoverflow.apiKey"),
