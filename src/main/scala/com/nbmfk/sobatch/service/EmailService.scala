@@ -22,10 +22,11 @@ class DefaultEmailService(config: Config) extends EmailService with LazyLogging 
     new MailAgent(to=config.getString("emailNotifications.to"),
       cc="",
       bcc="",
-      from="emailNotifications.from",
+      from=config.getString("emailNotifications.from"),
       subject=s"new scala so: ${question.title}",
       content=s"${question.title} link here ${question.link}",
-      smtpHost = config.getString("emailNotifications.smtpHost")).sendMessage
+      smtpHost = config.getString("emailNotifications.smtpHost"),
+      smtpPort = config.getString("emailNotifications.smtpPort")).sendMessage
       logger.info(s"sent email..")
   }
 }
@@ -38,7 +39,8 @@ class MailAgent(to: String,
                 from: String,
                 subject: String,
                 content: String,
-                smtpHost: String)
+                smtpHost: String,
+                smtpPort: String)
 {
   var message: Message = null
 
@@ -58,6 +60,7 @@ class MailAgent(to: String,
   def createMessage: Message = {
     val properties = new Properties()
     properties.put("mail.smtp.host", smtpHost)
+    properties.put("mail.smtp.port", smtpPort)
     val session = Session.getDefaultInstance(properties, null)
     return new MimeMessage(session)
   }

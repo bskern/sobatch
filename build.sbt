@@ -1,4 +1,3 @@
-import NativePackagerHelper._
 
 name := "sobatch"
 
@@ -18,16 +17,8 @@ libraryDependencies ++=Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
 )
 
-enablePlugins(JavaServerAppPackaging)
 
-mainClass in Compile := Some("com.nbmfk.sobatch.Boot")
-
-mappings in Universal ++= {
-  directory("scripts") ++
-  contentOf("src/main/resources").toMap.mapValues("config/" + _)
-}
-
-scriptClasspath := Seq("../config/") ++ scriptClasspath.value
+mainClass in assembly := Some("com.nbmfk.sobatch.Boot")
 
 
-licenses := Seq(("CC0", url("http://creativecommons.org/publicdomain/zero/1.0")))
+assemblyJarName in assembly := "sobatch-1.0.jar"
