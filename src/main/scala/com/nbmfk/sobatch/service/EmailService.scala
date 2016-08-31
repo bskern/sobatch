@@ -10,6 +10,7 @@ import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
 
 
 trait EmailService {
@@ -19,15 +20,20 @@ trait EmailService {
 class DefaultEmailService(config: Config) extends EmailService with LazyLogging {
   override def sendEmail(question: SOQuestion): Unit = {
     logger.info(s"going to send email for question $question")
-    new MailAgent(to=config.getString("emailNotifications.to"),
+    val agent = new MailAgent(to=config.getString("emailNotifications.to"),
       cc="",
       bcc="",
       from=config.getString("emailNotifications.from"),
       subject=s"new scala so: ${question.title}",
       content=s"${question.title} link here ${question.link}",
       smtpHost = config.getString("emailNotifications.smtpHost"),
-      smtpPort = config.getString("emailNotifications.smtpPort")).sendMessage
-      logger.info(s"sent email..")
+      smtpPort = config.getString("emailNotifications.smtpPort"))
+
+      Try(agent.sendMessage) match {
+        case Success(v) => logger.info(s"sent email..")
+        case Failure(e) => logger.error(s"error sending message..error $e msg $agent")
+      }
+     
   }
 }
 
@@ -91,5 +97,8 @@ class MailAgent(to: String,
     // could test for a null or blank String but I'm letting parse just throw an exception
     return InternetAddress.parse(address)
   }
+
+  override def toString : String =
+    s"to-$to from-$from subject $subject smtphost $smtpHost smtpport $smtpPort"
 
 }
