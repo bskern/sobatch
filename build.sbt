@@ -14,7 +14,9 @@ libraryDependencies ++=Seq(
   "javax.activation" % "activation" % "1.1.1",
   "com.typesafe.akka" % "akka-slf4j_2.11" % "2.4.9",
   "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
+  "com.github.cb372" %% "scalacache-ehcache" % "0.9.1",
+  "net.sf.ehcache" % "ehcache" % "2.10.0"
 )
 
 
